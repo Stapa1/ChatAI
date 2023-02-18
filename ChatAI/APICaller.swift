@@ -13,7 +13,7 @@ final class APICaller {
     static let shared = APICaller()
     
     @frozen enum Constants{
-        static let key = "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"
+        static let key = "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"
     }
     
     private var client : OpenAISwift?
@@ -29,6 +29,7 @@ final class APICaller {
             switch result{
                 
             case .success(let model):
+                print(String(describing: model.choices))
                 let output = model.choices.first?.text ?? ""
                 Completion(.success(output))
             case .failure(let error):

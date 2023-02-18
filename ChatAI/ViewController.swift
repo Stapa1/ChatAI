@@ -6,8 +6,22 @@
 //
 
 import UIKit
+//import OpenAI
 
-class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+
+//tableview
+class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate{
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return models.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+        cell.textLabel?.text = models[indexPath.row]
+        cell.textLabel?.numberOfLines = 0
+        return cell
+    }
+    
 
     
     
@@ -16,6 +30,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         textField.placeholder = "Type here..."
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.backgroundColor = .red
+        textField.returnKeyType = .done
         return textField
     }()
     
@@ -36,6 +51,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
 //        super.viewDidLoad()
         view.addSubview(field)
         view.addSubview(table)
+        field.delegate = self
         table.delegate = self
         table.dataSource = self
         NSLayoutConstraint.activate([
@@ -58,17 +74,38 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         }
     //tableview
     
-        func tableview(_ tableView: UITableView, numberOfRowsInSection section: Int)->{
-                return models.count
-        
+//        func tableview(_ tableView: UITableView, numberOfRowsInSection section: Int)->{
+//                return models.count
+//        
+//        }
+//    
+//        func tableview(_ tableView: UITableView, numberOfRowsInSection section: Int)->{
+//           
+//        }
+//        
+//
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        if let text = textField.text, !text.isEmpty{
+            
+            models.append(text)
+            APICaller.shared.getResponce(input: text){ [weak self] result in
+                switch result{
+                case .success(let output):
+                    self?.models.append(output)
+                    DispatchQueue.main.async {
+                        self?.table.reloadData()
+                        self?.field.text = nil
+                    }
+                    
+                case .failure:
+                    print("failed:(")
+                }
+                
+            }
         }
-    
-        func tableview(_ tableView: UITableView, numberOfRowsInSection section: Int)->{
-           
-        }
+        return true
         
-    
+    }
 
 
 }
-
